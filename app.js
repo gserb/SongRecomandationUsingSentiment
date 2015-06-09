@@ -27,10 +27,40 @@ app.get('/api/getsong', function(req, res) {
   var queryString = req.param('propozitie');
   var resultSentiment = sentiment(queryString);
   
-  var raspuns = {
-      scor: resultSentiment.score,
-      song: songsDataSet[0] //"Ana are mere"
-  }
+  console.log("Rezultatul analizei")
+  console.log(resultSentiment);
+  
+  console.log(typeof songsDataSet !== undefined ? "DATASETUL ESTE" : "NICI UN DATASET");
+  
+  var happySongsArray = songsDataSet.filter( function(item) { 
+	  	return item.mood === "happy";
+	  }),
+	  sadSongsArray = songsDataSet.filter( function (item) {
+		  return item.mood === "sad";
+	  } ); 
+ 
+   // console.log(happySongsArray.length > 0 );
+   // console.log('de jale:  ');
+   // console.log(sadSongsArray.length > 0)
+ 
+ 	// Returns a random number between min (inclusive) and max (exclusive)
+	var getRandomArbitrary = function (min, max) {
+  		return Math.random() * (max - min) + min;
+	}
+	
+	// console.log('scorul');
+	// console.log(parseInt(resultSentiment.score));
+	// console.log('happySong' + getRandomArbitrary(0,happySongsArray.length - 1));
+	// console.lgo('sadSong' + getRandomArbitrary(0,sadSongsArray.length - 1));
+	
+  	var raspuns = {
+     	scor: resultSentiment.score,
+      	song: parseInt(resultSentiment.score) > 0
+			  ? happySongsArray[ Math.round( getRandomArbitrary(0,happySongsArray.length - 1))] 
+			  : sadSongsArray[ Math.round( getRandomArbitrary(0,sadSongsArray.length - 1))]
+  
+		  //songsDataSet[0] //"Ana are mere"
+  	}
   
   res.send(raspuns);
 });
