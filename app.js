@@ -1,6 +1,7 @@
 // grab the packages we need
 var express = require('express');
 var sentiment = require('sentiment');
+var songsDataSet = require('./train_lyrics_rem_1000.json');
 var app = express();
 var port = process.env.PORT || 8080;
 
@@ -28,7 +29,7 @@ app.get('/api/getsong', function(req, res) {
   
   var raspuns = {
       scor: resultSentiment.score,
-      song: "Ana are mere"
+      song: songsDataSet[0] //"Ana are mere"
   }
   
   res.send(raspuns);
