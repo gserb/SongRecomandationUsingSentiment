@@ -19,10 +19,12 @@ app.get('/api/sentiment', function(req, res) {
   var queryString = req.param('propozitie');
   var resultSentiment = sentiment(queryString);
   
+  res.setHeader('Access-Control-Allow-Origin','*');
   res.send(resultSentiment);
 });
 
 // http://localhost:8080/api/getsong?propozitie=Love it
+// http://george-recomandation-engine.herokuapp.com/api/getsong?propozitie=Love%20it
 app.get('/api/getsong', function(req, res) {
   var queryString = req.param('propozitie');
   var resultSentiment = sentiment(queryString);
@@ -39,19 +41,10 @@ app.get('/api/getsong', function(req, res) {
 		  return item.mood === "sad";
 	  } ); 
  
-   // console.log(happySongsArray.length > 0 );
-   // console.log('de jale:  ');
-   // console.log(sadSongsArray.length > 0)
- 
  	// Returns a random number between min (inclusive) and max (exclusive)
 	var getRandomArbitrary = function (min, max) {
   		return Math.random() * (max - min) + min;
 	}
-	
-	// console.log('scorul');
-	// console.log(parseInt(resultSentiment.score));
-	// console.log('happySong' + getRandomArbitrary(0,happySongsArray.length - 1));
-	// console.lgo('sadSong' + getRandomArbitrary(0,sadSongsArray.length - 1));
 	
   	var raspuns = {
      	scor: resultSentiment.score,
@@ -62,6 +55,7 @@ app.get('/api/getsong', function(req, res) {
 		  //songsDataSet[0] //"Ana are mere"
   	}
   
+  res.setHeader('Access-Control-Allow-Origin','*');
   res.send(raspuns);
 });
 
