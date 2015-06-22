@@ -1,1 +1,13 @@
 https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&key=AIzaSyBN5tzGK0QRp13JdeZA1UB0nL45e-QEZCI&q=test
+
+$.ajax({
+    url: 'https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&key=AIzaSyBN5tzGK0QRp13JdeZA1UB0nL45e-QEZCI&q=test',
+    type: 'GET',
+    crossDomain: true,
+    dataType: 'jsonp',
+    success: function(response) { 
+    	console.log("the videoId is " + response.items[0].id.videoId );
+    	//console.log(response); 
+    },
+    error: function(error) { console.log(error); }
+});
