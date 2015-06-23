@@ -1,4 +1,3 @@
-// grab the packages we need
 var express = require('express');
 var sentiment = require('sentiment');
 var songsDataSet = require('./train_lyrics_rem_1000.json');
@@ -14,7 +13,6 @@ app.use(bodyParser.urlencoded({	extended: true })); // support encoded bodies
 // ====================================
 // URL PARAMETERS =====================
 // ====================================
-// http://localhost:8080/api/sentiment?propozitie=Love it
 app.get('/api/sentiment', function(req, res) {
   var queryString = req.param('propozitie');
   var resultSentiment = sentiment(queryString);
@@ -23,7 +21,7 @@ app.get('/api/sentiment', function(req, res) {
   res.send(resultSentiment);
 });
 
-// http://localhost:8080/api/getsong?propozitie=Love it
+
 // http://george-recomandation-engine.herokuapp.com/api/getsong?propozitie=Love%20it
 app.get('/api/getsong', function(req, res) {
   var queryString = req.param('propozitie');
@@ -41,62 +39,83 @@ app.get('/api/getsong', function(req, res) {
 		  return item.mood === "sad";
 	  } ); 
  
- 	// Returns a random number between min (inclusive) and max (exclusive)
-	var getRandomArbitrary = function (min, max) {
-  		return Math.random() * (max - min) + min;
-	}
-	
-  	var raspuns = {
-     	scor: resultSentiment.score,
-      	song: parseInt(resultSentiment.score) > 0
+   	// Returns a random number between min (inclusive) and max (exclusive)
+  	var getRandomArbitrary = function (min, max) {
+    		return Math.random() * (max - min) + min;
+  	}
+  	
+    var songToRecomand = parseInt(resultSentiment.score) > 0
 			  ? happySongsArray[ Math.round( getRandomArbitrary(0,happySongsArray.length - 1))] 
 			  : sadSongsArray[ Math.round( getRandomArbitrary(0,sadSongsArray.length - 1))]
   
+  
+  	var raspuns = {
+     	  scor: resultSentiment.score,
+      	song: songToRecomand
 		  //songsDataSet[0] //"Ana are mere"
   	}
   
+
   res.setHeader('Access-Control-Allow-Origin','*');
   res.send(raspuns);
 });
 
-// http://localhost:8080/api/1
-app.get('/api/:version', function(req, res) {
-	res.send(req.params.version);
+
+
+app.get('/', function(req, res) {
+  var queryString = req.param('propozitie');
+  var resultSentiment = sentiment(queryString);
+  
+  console.log("Rezultatul analizei")
+  console.log(resultSentiment);
+  
+  console.log(typeof songsDataSet !== undefined ? "DATASETUL ESTE" : "NICI UN DATASET");
+  
+  var happySongsArray = songsDataSet.filter( function(item) { 
+	  	return item.mood === "happy";
+	  }),
+	  sadSongsArray = songsDataSet.filter( function (item) {
+		  return item.mood === "sad";
+	  } ); 
+ 
+   	// Returns a random number between min (inclusive) and max (exclusive)
+  	var getRandomArbitrary = function (min, max) {
+    		return Math.random() * (max - min) + min;
+  	}
+  	
+    var songToRecomand = parseInt(resultSentiment.score) > 0
+			  ? happySongsArray[ Math.round( getRandomArbitrary(0,happySongsArray.length - 1))] 
+			  : sadSongsArray[ Math.round( getRandomArbitrary(0,sadSongsArray.length - 1))]
+  
+  
+  	var raspuns = {
+     	  scor: resultSentiment.score,
+      	song: songToRecomand,
+        url: "<a target='_blank' href='https://www.youtube.com/results?q=" + songToRecomand.artist + " " + songToRecomand.title  + "&app=desktop'>test</a>"
+		  //songsDataSet[0] //"Ana are mere"
+  	}
+  
+  var raspunsHtml = "<div style='margin: 8%'><h1>Rezultatele Analizei</h1>" +
+          "<h3>Textul cautat:&nbsp" +"<span style='color: orange'>" + queryString + "</span>" + "</h3>" +
+          "<div> Scor : &nbsp" + resultSentiment.score + "</div>" + 
+          "<div> Melodie recomandata </div>" +
+          "<div style='padding-left:2%;'>Artist :&nbsp" +"<span style='color: orange'>"+ songToRecomand.artist + "</span>" + "</div>" +  
+          "<div style='padding-left:2%;'>Titlul melodiei :&nbsp" +"<span style='color: orange'>" + songToRecomand.title + "</span>" + "</div>" + 
+          "<div style='padding-left:2%;'>Stare :&nbsp" + "<span style='color: orange'>" + (songToRecomand.mood == 'sad' ? 'trist' : 'fericit') + "</span>" + "</div>" + 
+          "<div style='padding-left:2%;'>An :&nbsp" +"<span style='color: orange'>" + songToRecomand.year + "</span>" + "</div>" + 
+          "</br>" +
+          "<div>" +
+          "<a target='_blank' href='https://www.youtube.com/results?q=" + songToRecomand.artist + " " + songToRecomand.title  + "&app=desktop'>Youtube Link pentru melodia " + songToRecomand.artist + " " + songToRecomand.title + "</a>" +
+          "</div></br><div> Rezultatul intreg in urma analizei textului introdus: </br>" + JSON.stringify(resultSentiment) + "</div></div>";
+          
+  res.setHeader('Access-Control-Allow-Origin','*');
+  res.send(raspunsHtml);
 });
 
-// parameter middleware that will run before the next routes
-app.param('name', function(req, res, next, name) {
 
-	// check if the user with that name exists
-	// do some validations
-	// add -dude to the name
-	var modified = name + '-dude';
 
-	// save name to the request
-	req.name = modified;
 
-	next();
-});
 
-// http://localhost:8080/api/users/chris
-app.get('/api/users/:name', function(req, res) {
-	// the user was found and is available in req.user
-	res.send('What is up ' + req.name + '!');
-});
-
-// ====================================
-// POST PARAMETERS ====================
-// ====================================
-
-// POST http://localhost:8080/api/users
-// parameters sent with 
-app.post('/api/users', function(req, res) {
-	var user_id = req.body.id;
-	var token = req.body.token;
-	var geo = req.body.geo;
-
-	res.send(user_id + ' ' + token + ' ' + geo);
-});
 
 // start the server
 app.listen(port);
